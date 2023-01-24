@@ -30,6 +30,10 @@
 				"extensions": [
 					".jakt"
 				],
+        "icon": {
+          "light": "./snippets/jaktminimini.png",
+          "dark": "./snippets/jaktminimini.png"
+        },
 				"configuration": "./language-configuration.json"
 			}
 		],
