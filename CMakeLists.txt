@@ -194,9 +194,9 @@ endif()
 option(JAKT_BUILD_TESTING "Whether to build tests or not, default on" ON)
 
 if (JAKT_BUILD_TESTING)
-  add_jakt_executable(jakttest
+  add_jakt_executable(formattertest
     MAIN_SOURCE
-      jakttest/jakttest.jakt
+      jakttest/formattertest.jakt
     MODULE_SOURCES
       jakttest/error.jakt
       jakttest/lexer.jakt
@@ -205,11 +205,11 @@ if (JAKT_BUILD_TESTING)
     INCLUDES
       "${CMAKE_CURRENT_SOURCE_DIR}/jakttest"
   )
-  add_jakt_compiler_flags(jakttest)
-  target_sources(jakttest PRIVATE
+  add_jakt_compiler_flags(formattertest)
+  target_sources(formattertest PRIVATE
      jakttest/fs.cpp
      jakttest/os.cpp
      jakttest/process.cpp
   )
-  apply_output_rules(jakttest)
+  apply_output_rules(formattertest)
 endif()

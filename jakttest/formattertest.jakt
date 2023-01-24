@@ -92,9 +92,6 @@ function get_jakt_files_under(directory: String, results: &mut [String]) throws 
             if child_name == ".." or child_name == "." {
                 continue
             }
-            if child_name == "formatter" {
-                continue
-            }
             let full_child_path = current + "/" + child_name
             if is_directory(path: full_child_path) {
                 // add it to the stack so we traverse it
@@ -346,11 +343,7 @@ struct Options {
         }
 
         if options.files.is_empty() {
-            // find files under samples and tests
-            get_jakt_files_under(directory: "samples",  results: &mut options.files)
-            get_jakt_files_under(directory: "tests",    results: &mut options.files)
-            // compile selfhost to check it can compile itself
-            options.files.push("selfhost/main.jakt")
+            get_jakt_files_under(directory: "tests/formatter",    results: &mut options.files)
         }
 
         if options.job_count == 0 {
