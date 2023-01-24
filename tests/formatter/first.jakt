@@ -1,0 +1,20 @@
+/// Expect:
+/// function greet(msg: String) {
+///     println("{}", msg)
+/// }
+
+/// function main() {
+///     greet(
+///         msg: "Well, hello friends."
+///     )
+/// }
+
+function greet(msg: String) {
+    println("{}", msg)
+}
+
+function main() {
+    greet(
+        msg: "Well, hello friends."
+    )
+}
