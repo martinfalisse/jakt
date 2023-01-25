@@ -190,7 +190,7 @@ struct Parser {
                     builder.append(.input[i])
                 }
 
-                output = builder.to_string()
+                output = builder.to_string().replace(replace: "/// ", with: "").replace(replace: "///", with: "")
                 continue
             }
 
