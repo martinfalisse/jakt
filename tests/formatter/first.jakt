@@ -1,8 +1,10 @@
 /// Expect:
+/// - format:
+///
 /// function greet(msg: String) {
 ///     println("{}", msg)
 /// }
-
+///
 /// function main() {
 ///     greet(
 ///         msg: "Well, hello friends."
