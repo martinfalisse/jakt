@@ -2,6 +2,7 @@
 // Copyright (c) 2022, Jesús Lapastora <cyber.gsuscode@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
+
 import error { JaktError }
 import utility { panic, todo, Span }
 
@@ -69,6 +70,35 @@ struct Parser {
         return Span(start, end: .index - 1)
     }
 
+    function lex_formatted_block(mut this) -> Span? {
+        let nothing: Span? = None
+        if .is_eof() {
+            return nothing
+        }
+        .index++
+        let start = .index
+        while not .is_eof() {
+            let current = .current()
+            if current == b'\n' {
+                .index++
+                if .current() != 47 {
+                    break
+                }
+                .index++
+                if .current() != 47 {
+                    break
+                }
+                .index++
+                if .current() != 47 {
+                    break
+                }
+            }
+            .index++
+        }
+        .index++
+        return Span(start, end: .index - 1)
+    }
+
     function parse_test(mut this) throws -> ParsedTest {
         if not .lex_literal("///") {
             .index++
@@ -97,6 +127,7 @@ struct Parser {
 
     function parse_test_information(mut this) throws -> ParsedTest {
         mut success_test = false
+        mut formatter_test = false
         mut runtime_error = false
         mut compile_error = false
         mut has_cppincludes = false
@@ -117,6 +148,9 @@ struct Parser {
             if not success_test {
                 success_test = .lex_literal("output")
             }
+            if not formatter_test {
+                formatter_test = .lex_literal("format")
+            }
             if not compile_error {
                 compile_error = .lex_literal("error")
             }
@@ -128,13 +162,13 @@ struct Parser {
                 eprintln("Too many test directives")
                 return ParsedTest::NoExpectOrSkip
             }
-            let expect_output = success_test or compile_error or runtime_error
+            let expect_output = success_test or formatter_test or compile_error or runtime_error
 
             if not has_cppincludes {
                 has_cppincludes =  .lex_literal("cppincludes")
             }
 
-            guard success_test or compile_error or runtime_error or has_cppincludes else {
+            guard success_test or formatter_test or compile_error or runtime_error or has_cppincludes else {
                 return ParsedTest::NoExpectOrSkip
             }
 
@@ -144,6 +178,22 @@ struct Parser {
             }
             .index++
             .skip_whitespace()
+
+            if (formatter_test) {
+                let quoted_string_span = .lex_formatted_block()
+                if not quoted_string_span.has_value() {
+                    return ParsedTest::NoExpectOrSkip
+                }
+                let span = quoted_string_span!
+                mut builder = StringBuilder::create()
+                for i in span.start..span.end {
+                    builder.append(.input[i])
+                }
+
+                output = builder.to_string()
+                continue
+            }
+
             let quoted_string_span = .lex_quoted_string()
             if not quoted_string_span.has_value() {
                 return ParsedTest::NoExpectOrSkip
@@ -169,7 +219,7 @@ struct Parser {
             }
             cppincludes = parsed_string
         }
-        if success_test {
+        if success_test or formatter_test {
             return ParsedTest::SuccessTest(output, cppincludes)
         }
         if compile_error {
