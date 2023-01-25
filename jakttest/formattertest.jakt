@@ -638,19 +638,9 @@ struct TestScheduler {
         let run_once_script = os::get_script_execution_string()
         mut command_buffer: [String] = [
             run_once_script
-            "jakttest/run_one.py"
+            "jakttest/format_one.py"
             "--jakt-binary"
             String::format("{}/bin/jakt", build_dir)
-            "--jakt-lib-dir"
-            String::format("{}/lib", build_dir)
-            "--target-triple"
-            ___jakt_get_target_triple_string()
-            "--cpp-compiler"
-            cpp_compiler_path ?? "clang++"
-            "--cpp-include"
-            "None" // A sentinel value is passed here because Windows shell does not allow empty arguments
-            ""
-            ""
         ]
         while not tests.is_empty() {
             let dir_index = scheduler.wait_for_free_directory()
