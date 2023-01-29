@@ -1,0 +1,28 @@
+/// Expect:
+/// - format:
+///
+/// struct Value {
+///     impl: u8
+///     span: u8
+/// }
+///
+/// function main() {
+///     mut result_values: [Value] = []
+///     result_values.push(Value(
+///         impl: 5
+///         span: 5
+///     ))
+/// }
+
+struct Value {
+    impl: u8
+    span: u8
+}
+
+function main() {
+    mut result_values: [Value] = []
+    result_values.push(Value(
+        impl: 5
+        span: 5
+    ))
+}
