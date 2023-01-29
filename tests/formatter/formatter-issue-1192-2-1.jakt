@@ -1,0 +1,39 @@
+/// Expect:
+/// - format:
+///
+/// function execute(function_to_run_id: u8, namespace_: u8, this_argument: u8, arguments: u8, call_span: u8) -> u8 {
+///     return 1
+/// }
+///
+/// function main() {
+///     let main_function_id: u8 = 1
+///     let namespace_: u8 = 1
+///     let this_argument: u8 = 1
+///     let arguments: u8 = 1
+///     let call_span: u8 = 1
+///     let main_result = execute(
+///         function_to_run_id: main_function_id
+///         namespace_
+///         this_argument: None
+///         arguments
+///         call_span
+///     )
+/// }
+
+function execute(function_to_run_id: u8, namespace_: u8, this_argument: u8, arguments: u8, call_span: u8) -> u8 {
+    return 1
+}
+
+function main() {
+    let main_function_id: u8 = 1
+    let namespace_: u8 = 1
+    let this_argument: u8 = 1
+    let arguments: u8 = 1
+    let call_span: u8 = 1
+    let main_result = execute(
+        function_to_run_id: main_function_id
+        namespace_
+        this_argument: None
+        arguments
+        call_span)
+}

@@ -1,0 +1,27 @@
+/// Expect:
+/// - format:
+///
+/// enum AllowedControlExits {
+///     Nothing
+///     JustReturn
+///     AtLoop
+/// }
+///
+/// function is_return_allowed(
+///     anon allowed_control_exits: AllowedControlExits
+/// ) -> bool => not allowed_control_exits is Nothing
+///
+/// function main() {
+/// }
+
+enum AllowedControlExits {
+    Nothing
+    JustReturn
+    AtLoop
+}
+
+function is_return_allowed(
+    anon allowed_control_exits: AllowedControlExits) -> bool => not allowed_control_exits is Nothing
+
+function main() {
+}

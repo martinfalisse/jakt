@@ -1,0 +1,10 @@
+/// Expect:
+/// - format:
+///
+/// function main() {
+///     let set = { 1, 2, 3, 4 }
+/// }
+
+function main() {
+    let set = { 1, 2, 3, 4}
+}

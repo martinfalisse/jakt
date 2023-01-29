@@ -1,0 +1,38 @@
+/// Expect:
+/// - format:
+///
+/// function escape_for_quotes(namespace_: u8) -> u8 {
+///     return 1
+/// }
+///
+/// function main() {
+///     let main_function_id: u8 = 1
+///     let namespace_: u8 = 1
+///     let this_argument: u8 = 1
+///     let arguments: u8 = 1
+///     let call_span: u8 = 1
+///     println(
+///         "{{\"start\": {}, \"end\": {}, \"file\": \"{}\"}}"
+///         namespace_
+///         namespace_
+///         escape_for_quotes(namespace_)
+///     )
+/// }
+
+function escape_for_quotes(namespace_: u8) -> u8 {
+    return 1
+}
+
+function main() {
+    let main_function_id: u8 = 1
+    let namespace_: u8 = 1
+    let this_argument: u8 = 1
+    let arguments: u8 = 1
+    let call_span: u8 = 1
+    println(
+        "{{\"start\": {}, \"end\": {}, \"file\": \"{}\"}}"
+        namespace_
+        namespace_
+        escape_for_quotes(namespace_)
+    );
+}
