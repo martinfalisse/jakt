@@ -96,7 +96,36 @@ struct Parser {
             .index++
         }
         .index++
-        return Span(start, end: .index - 1)
+        return Span(start, end: .index - 2)
+    }
+
+    function idk_yet(mut this) -> Span? {
+        let nothing: Span? = None
+        if .is_eof() {
+            return nothing
+        }
+        .index++
+        let start = .index
+        while not .is_eof() {
+            let current = .current()
+            if current == b'\n' {
+                .index++
+                if .current() != 47 {
+                    break
+                }
+                .index++
+                if .current() != 47 {
+                    break
+                }
+                .index++
+                if .current() != 47 {
+                    break
+                }
+            }
+            .index++
+        }
+        .index++
+        return Span(start: .index - 1, end: .input.size())
     }
 
     function parse_test(mut this) throws -> ParsedTest {

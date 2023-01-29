@@ -8,7 +8,7 @@
 import error { JaktError, print_error }
 import parser { Parser }
 import lexer { Lexer }
-import utility { panic }
+import utility { panic, Span }
 
 // needed for sigaction() stuff
 // FIXME: See #1015, needs to be OS-specific
@@ -158,9 +158,26 @@ function compare_test(bytes: [u8], expected: String) throws -> bool {
 
     mut builder_output = builder.to_string()
     // Strip windows newlines
-    builder_output = builder_output.replace(replace: "\r", with: "")
-
+    // eprintln("builder_output.length() {}", builder_output.length())
+    // eprintln("expected.length() {}", expected.length())
     if builder_output != expected {
+        // for i in 0..builder_output.length() {
+        //     let got_char = builder_output.substring(start: i, length: 1)
+        //     let expected_char = expected.substring(start: i, length: 1)
+        //     if (got_char != expected_char) {                
+        //         eprintln("Expected: {}, Got: {}", expected_char, got_char)
+        //     }
+        // }
+
+        // for i in 0..bytes.size() {
+        //     let got_byte = bytes[i]
+        //     let expected_byte = expected.byte_at(index: i)
+        //     if (got_byte != expected_byte) {                
+        //         eprintln("Expected: {}, Got: {}", got_byte, expected_byte)
+        //         return false
+        //     }
+        // }
+
         // TODO: return more information about expected/parsed
         return false
     }
@@ -447,6 +464,13 @@ struct TestScheduler {
     failed_reasons: [String:TestFailedReason]?
     // TODO: timeout
 
+    private function to_array(anon x: String) throws -> [u8] {
+        mut res: [u8] = []
+        for i in 0..x.length() {
+            res.push(x.byte_at(i))
+        }
+        return res
+    }
 
     /// Returns whether the test that the exited process was running has passed
     /// or not
@@ -472,9 +496,20 @@ struct TestScheduler {
         let (result_output, error_output) = test_outputs(directory: .directories[test.directory_index], stage)
 
         let expected = test.result.output
+        mut parser = Parser(index: 0, input: result_output)
+        let quoted_string_span = parser.idk_yet()
+        if not quoted_string_span.has_value() {
+            return TestExitedResult::Failed(file: test.file_name)
+        }
+        let span = quoted_string_span!
+        mut builder = StringBuilder::create()
+        for i in span.start..span.end {
+            builder.append(result_output[i])
+        }
 
+        let new_result_output = to_array(builder.to_string())
         let passed_test = match test.result.kind {
-            Okay => compare_test(bytes: result_output, expected)
+            Okay => compare_test(bytes: new_result_output, expected)
             RuntimeError | CompileError => compare_error(bytes: error_output, expected)
         }
 
@@ -490,9 +525,9 @@ struct TestScheduler {
                             expected: test.result
                             failed_stage: stage.to_string()
                         )
-                    } else if stage is TestRun and result_output.size() > 0 {
+                    } else if stage is TestRun and new_result_output.size() > 0 {
                         .failed_reasons![test.file_name] = TestFailedReason::ExpectedError(
-                            had: bytes_to_string(result_output)
+                            had: bytes_to_string(new_result_output)
                             expected: test.result
                         )
                     } else {
@@ -508,7 +543,7 @@ struct TestScheduler {
             } else if .failed_reasons.has_value() {
                 .failed_reasons![test.file_name] = match test.result.kind {
                     Okay => TestFailedReason::StdoutUnmatched(
-                                had: bytes_to_string(result_output)
+                                had: bytes_to_string(new_result_output)
                                 expected: test.result
                             )
                     RuntimeError => TestFailedReason::StderrUnmatched(
@@ -675,6 +710,28 @@ struct TestScheduler {
     }
 }
 
+function reduced_expected(expected: String, got: String) -> String {
+    let expected_split = expected.split('\n')
+    let got_split = got.split('\n')
+    for x in 0..expected_split.size() {
+        if (expected_split[x] != got_split[x]) {
+            return expected_split[x]
+        }
+    }
+    return ""
+}
+
+function reduced_got(expected: String, got: String) -> String {
+    let expected_split = expected.split('\n')
+    let got_split = got.split('\n')
+    for x in 0..expected_split.size() {
+        if (expected_split[x] != got_split[x]) {
+            return got_split[x]
+        }
+    }
+    return ""
+}
+
 function main(args: [String]) {
     let parsed_options = Options::from_args(args)
 
@@ -791,9 +848,9 @@ function main(args: [String]) {
                 StdoutUnmatched(had, expected) => {
                     output += "Could not match test stdout:\n"
                     output += "Expected:\n"
-                    output += expected.output
+                    output += reduced_expected(expected: expected.output, got: had)
                     output += "\nGot:\n"
-                    output += had
+                    output += reduced_got(expected: expected.output, got: had)
                 }
                 StderrUnmatched(had, expected) => {
                     output += "Could not match test stderr:\n"
