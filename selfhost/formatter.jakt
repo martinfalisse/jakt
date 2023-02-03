@@ -2621,12 +2621,21 @@ struct Formatter implements(ThrowingIterable<[FormattedToken]>) {
         line[0].token.preceding_trivia = []
 
         mut enclosure_run_length = 0uz
+        mut previous_was_parantheses = false
         for i in (line.size() - 1)..0uz {
+            eprintln("{} \n", line[i].token.token)
             match line[i].token.token {
                 RParen | RCurly | RSquare => {
-                    enclosure_run_length += 1
+                    if (not previous_was_parantheses) {
+                        enclosure_run_length += 1
+                    }
+                    if (previous_was_parantheses) {
+                        eprintln("ya")
+                    }
+                    previous_was_parantheses = true
                 }
                 else => {
+                    previous_was_parantheses = false
                     for j in 0..enclosure_run_length {
                         line[i - j].token = FormattedToken(
                             token: line[i - j].token.token
@@ -2639,12 +2648,29 @@ struct Formatter implements(ThrowingIterable<[FormattedToken]>) {
                 }
             }
         }
+        eprintln("enclosure_run_length  {} \n", enclosure_run_length)
         for j in 0..enclosure_run_length {
-            line[j].token = FormattedToken(
-                token: line[j].token.token
+            let newline = Token::Eol(
+                comment: None
+                span: line[j].token.token.span()
+            )
+            let newline_token = FormattedToken(
+                token: newline
                 indent: line[enclosure_run_length].token.indent
                 trailing_trivia: line[j].token.trailing_trivia
                 preceding_trivia: line[j].token.preceding_trivia
+            )
+            line.insert(before_index: 1, value: ReflowState(
+                token: newline_token
+                state: line[j].state
+                enclosures_to_ignore: .enclosures_to_ignore
+            ))
+
+            line[j + 1].token = FormattedToken(
+                token: line[j + 1].token.token
+                indent: line[enclosure_run_length + 1].token.indent
+                trailing_trivia: line[j + 1].token.trailing_trivia
+                preceding_trivia: line[j + 1].token.preceding_trivia
             )
         }
 
